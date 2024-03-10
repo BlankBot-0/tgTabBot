@@ -1,10 +1,9 @@
 package main
 
 import (
+	"github.com/go-audio/midi"
 	"log"
 	"os"
-
-	"github.com/go-audio/midi"
 )
 
 func main() {
@@ -34,5 +33,5 @@ func main() {
 	if err := e.Write(); err != nil {
 		log.Fatal(err)
 	}
-
+	//textParser.Tab("8([64 56])")
 }

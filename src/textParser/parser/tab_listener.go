@@ -11,8 +11,11 @@ type TabListener interface {
 	// EnterStart is called when entering the start production.
 	EnterStart(c *StartContext)
 
-	// EnterDurationGroups is called when entering the durationGroups production.
-	EnterDurationGroups(c *DurationGroupsContext)
+	// EnterBpm is called when entering the bpm production.
+	EnterBpm(c *BpmContext)
+
+	// EnterTuning is called when entering the tuning production.
+	EnterTuning(c *TuningContext)
 
 	// EnterDurationGroup is called when entering the durationGroup production.
 	EnterDurationGroup(c *DurationGroupContext)
@@ -23,14 +26,11 @@ type TabListener interface {
 	// EnterDurDefault is called when entering the DurDefault production.
 	EnterDurDefault(c *DurDefaultContext)
 
-	// EnterNoteGroup is called when entering the noteGroup production.
-	EnterNoteGroup(c *NoteGroupContext)
+	// EnterPlayFret is called when entering the PlayFret production.
+	EnterPlayFret(c *PlayFretContext)
 
 	// EnterSimpleChord is called when entering the SimpleChord production.
 	EnterSimpleChord(c *SimpleChordContext)
-
-	// EnterPlayFret is called when entering the PlayFret production.
-	EnterPlayFret(c *PlayFretContext)
 
 	// EnterPause is called when entering the Pause production.
 	EnterPause(c *PauseContext)
@@ -41,8 +41,11 @@ type TabListener interface {
 	// ExitStart is called when exiting the start production.
 	ExitStart(c *StartContext)
 
-	// ExitDurationGroups is called when exiting the durationGroups production.
-	ExitDurationGroups(c *DurationGroupsContext)
+	// ExitBpm is called when exiting the bpm production.
+	ExitBpm(c *BpmContext)
+
+	// ExitTuning is called when exiting the tuning production.
+	ExitTuning(c *TuningContext)
 
 	// ExitDurationGroup is called when exiting the durationGroup production.
 	ExitDurationGroup(c *DurationGroupContext)
@@ -53,14 +56,11 @@ type TabListener interface {
 	// ExitDurDefault is called when exiting the DurDefault production.
 	ExitDurDefault(c *DurDefaultContext)
 
-	// ExitNoteGroup is called when exiting the noteGroup production.
-	ExitNoteGroup(c *NoteGroupContext)
+	// ExitPlayFret is called when exiting the PlayFret production.
+	ExitPlayFret(c *PlayFretContext)
 
 	// ExitSimpleChord is called when exiting the SimpleChord production.
 	ExitSimpleChord(c *SimpleChordContext)
-
-	// ExitPlayFret is called when exiting the PlayFret production.
-	ExitPlayFret(c *PlayFretContext)
 
 	// ExitPause is called when exiting the Pause production.
 	ExitPause(c *PauseContext)

@@ -33,39 +33,44 @@ var TabParserStaticData struct {
 func tabParserInit() {
 	staticData := &TabParserStaticData
 	staticData.LiteralNames = []string{
-		"", "'('", "')'", "'['", "']'", "'p'", "'b('", "','",
+		"", "'BPM'", "'('", "')'", "'['", "']'", "'p'", "'b('", "','",
 	}
 	staticData.SymbolicNames = []string{
-		"", "", "", "", "", "", "", "", "STR", "INTEGER", "DURMOD", "WHITESPACE",
+		"", "", "", "", "", "", "", "", "", "INTEGER", "DURMOD", "NOTELETTER",
+		"WHITESPACE",
 	}
 	staticData.RuleNames = []string{
-		"start", "durationGroups", "durationGroup", "duration", "noteGroup",
-		"chord", "note",
+		"start", "bpm", "tuning", "durationGroup", "duration", "entry",
 	}
 	staticData.PredictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 11, 59, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
-		4, 2, 5, 7, 5, 2, 6, 7, 6, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 3,
-		1, 22, 8, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 3, 1, 3, 1, 3, 1, 3, 3, 3,
-		33, 8, 3, 1, 4, 1, 4, 1, 4, 1, 4, 1, 4, 1, 4, 1, 4, 1, 4, 1, 4, 3, 4, 44,
-		8, 4, 1, 5, 1, 5, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6,
-		3, 6, 57, 8, 6, 1, 6, 0, 0, 7, 0, 2, 4, 6, 8, 10, 12, 0, 0, 57, 0, 14,
-		1, 0, 0, 0, 2, 21, 1, 0, 0, 0, 4, 23, 1, 0, 0, 0, 6, 32, 1, 0, 0, 0, 8,
-		43, 1, 0, 0, 0, 10, 45, 1, 0, 0, 0, 12, 56, 1, 0, 0, 0, 14, 15, 3, 2, 1,
-		0, 15, 16, 5, 0, 0, 1, 16, 1, 1, 0, 0, 0, 17, 18, 3, 4, 2, 0, 18, 19, 3,
-		2, 1, 0, 19, 22, 1, 0, 0, 0, 20, 22, 3, 4, 2, 0, 21, 17, 1, 0, 0, 0, 21,
-		20, 1, 0, 0, 0, 22, 3, 1, 0, 0, 0, 23, 24, 3, 6, 3, 0, 24, 25, 5, 1, 0,
-		0, 25, 26, 3, 8, 4, 0, 26, 27, 5, 2, 0, 0, 27, 5, 1, 0, 0, 0, 28, 29, 5,
-		9, 0, 0, 29, 30, 5, 10, 0, 0, 30, 33, 5, 9, 0, 0, 31, 33, 5, 9, 0, 0, 32,
-		28, 1, 0, 0, 0, 32, 31, 1, 0, 0, 0, 33, 7, 1, 0, 0, 0, 34, 35, 3, 12, 6,
-		0, 35, 36, 3, 8, 4, 0, 36, 44, 1, 0, 0, 0, 37, 38, 5, 3, 0, 0, 38, 39,
-		3, 10, 5, 0, 39, 40, 5, 4, 0, 0, 40, 41, 3, 8, 4, 0, 41, 44, 1, 0, 0, 0,
-		42, 44, 3, 12, 6, 0, 43, 34, 1, 0, 0, 0, 43, 37, 1, 0, 0, 0, 43, 42, 1,
-		0, 0, 0, 44, 9, 1, 0, 0, 0, 45, 46, 3, 8, 4, 0, 46, 11, 1, 0, 0, 0, 47,
-		48, 5, 8, 0, 0, 48, 57, 5, 9, 0, 0, 49, 57, 5, 5, 0, 0, 50, 51, 5, 6, 0,
-		0, 51, 52, 3, 12, 6, 0, 52, 53, 5, 7, 0, 0, 53, 54, 5, 9, 0, 0, 54, 55,
-		5, 2, 0, 0, 55, 57, 1, 0, 0, 0, 56, 47, 1, 0, 0, 0, 56, 49, 1, 0, 0, 0,
-		56, 50, 1, 0, 0, 0, 57, 13, 1, 0, 0, 0, 4, 21, 32, 43, 56,
+		4, 1, 12, 69, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 2, 5, 7, 5, 1, 0, 1, 0, 1, 0, 5, 0, 16, 8, 0, 10, 0, 12, 0, 19, 9, 0,
+		1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 3, 1, 3,
+		1, 3, 5, 3, 34, 8, 3, 10, 3, 12, 3, 37, 9, 3, 1, 3, 1, 3, 1, 4, 1, 4, 1,
+		4, 5, 4, 44, 8, 4, 10, 4, 12, 4, 47, 9, 4, 1, 4, 3, 4, 50, 8, 4, 1, 5,
+		1, 5, 1, 5, 5, 5, 55, 8, 5, 10, 5, 12, 5, 58, 9, 5, 1, 5, 1, 5, 1, 5, 1,
+		5, 1, 5, 1, 5, 1, 5, 3, 5, 67, 8, 5, 1, 5, 0, 0, 6, 0, 2, 4, 6, 8, 10,
+		0, 0, 70, 0, 12, 1, 0, 0, 0, 2, 22, 1, 0, 0, 0, 4, 25, 1, 0, 0, 0, 6, 30,
+		1, 0, 0, 0, 8, 49, 1, 0, 0, 0, 10, 66, 1, 0, 0, 0, 12, 13, 3, 2, 1, 0,
+		13, 17, 3, 4, 2, 0, 14, 16, 3, 6, 3, 0, 15, 14, 1, 0, 0, 0, 16, 19, 1,
+		0, 0, 0, 17, 15, 1, 0, 0, 0, 17, 18, 1, 0, 0, 0, 18, 20, 1, 0, 0, 0, 19,
+		17, 1, 0, 0, 0, 20, 21, 5, 0, 0, 1, 21, 1, 1, 0, 0, 0, 22, 23, 5, 1, 0,
+		0, 23, 24, 5, 9, 0, 0, 24, 3, 1, 0, 0, 0, 25, 26, 5, 11, 0, 0, 26, 27,
+		5, 9, 0, 0, 27, 28, 1, 0, 0, 0, 28, 29, 6, 2, -1, 0, 29, 5, 1, 0, 0, 0,
+		30, 31, 3, 8, 4, 0, 31, 35, 5, 2, 0, 0, 32, 34, 3, 10, 5, 0, 33, 32, 1,
+		0, 0, 0, 34, 37, 1, 0, 0, 0, 35, 33, 1, 0, 0, 0, 35, 36, 1, 0, 0, 0, 36,
+		38, 1, 0, 0, 0, 37, 35, 1, 0, 0, 0, 38, 39, 5, 3, 0, 0, 39, 7, 1, 0, 0,
+		0, 40, 41, 5, 9, 0, 0, 41, 45, 5, 10, 0, 0, 42, 44, 5, 9, 0, 0, 43, 42,
+		1, 0, 0, 0, 44, 47, 1, 0, 0, 0, 45, 43, 1, 0, 0, 0, 45, 46, 1, 0, 0, 0,
+		46, 50, 1, 0, 0, 0, 47, 45, 1, 0, 0, 0, 48, 50, 5, 9, 0, 0, 49, 40, 1,
+		0, 0, 0, 49, 48, 1, 0, 0, 0, 50, 9, 1, 0, 0, 0, 51, 67, 5, 9, 0, 0, 52,
+		56, 5, 4, 0, 0, 53, 55, 5, 9, 0, 0, 54, 53, 1, 0, 0, 0, 55, 58, 1, 0, 0,
+		0, 56, 54, 1, 0, 0, 0, 56, 57, 1, 0, 0, 0, 57, 59, 1, 0, 0, 0, 58, 56,
+		1, 0, 0, 0, 59, 67, 5, 5, 0, 0, 60, 67, 5, 6, 0, 0, 61, 62, 5, 7, 0, 0,
+		62, 63, 5, 9, 0, 0, 63, 64, 5, 8, 0, 0, 64, 65, 5, 9, 0, 0, 65, 67, 5,
+		3, 0, 0, 66, 51, 1, 0, 0, 0, 66, 52, 1, 0, 0, 0, 66, 60, 1, 0, 0, 0, 66,
+		61, 1, 0, 0, 0, 67, 11, 1, 0, 0, 0, 6, 17, 35, 45, 49, 56, 66,
 	}
 	deserializer := antlr.NewATNDeserializer(nil)
 	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
@@ -111,21 +116,21 @@ const (
 	TabParserT__4       = 5
 	TabParserT__5       = 6
 	TabParserT__6       = 7
-	TabParserSTR        = 8
+	TabParserT__7       = 8
 	TabParserINTEGER    = 9
 	TabParserDURMOD     = 10
-	TabParserWHITESPACE = 11
+	TabParserNOTELETTER = 11
+	TabParserWHITESPACE = 12
 )
 
 // TabParser rules.
 const (
-	TabParserRULE_start          = 0
-	TabParserRULE_durationGroups = 1
-	TabParserRULE_durationGroup  = 2
-	TabParserRULE_duration       = 3
-	TabParserRULE_noteGroup      = 4
-	TabParserRULE_chord          = 5
-	TabParserRULE_note           = 6
+	TabParserRULE_start         = 0
+	TabParserRULE_bpm           = 1
+	TabParserRULE_tuning        = 2
+	TabParserRULE_durationGroup = 3
+	TabParserRULE_duration      = 4
+	TabParserRULE_entry         = 5
 )
 
 // IStartContext is an interface to support dynamic dispatch.
@@ -136,8 +141,11 @@ type IStartContext interface {
 	GetParser() antlr.Parser
 
 	// Getter signatures
-	DurationGroups() IDurationGroupsContext
+	Bpm() IBpmContext
+	Tuning() ITuningContext
 	EOF() antlr.TerminalNode
+	AllDurationGroup() []IDurationGroupContext
+	DurationGroup(i int) IDurationGroupContext
 
 	// IsStartContext differentiates from other interfaces.
 	IsStartContext()
@@ -175,10 +183,10 @@ func NewStartContext(parser antlr.Parser, parent antlr.ParserRuleContext, invoki
 
 func (s *StartContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *StartContext) DurationGroups() IDurationGroupsContext {
+func (s *StartContext) Bpm() IBpmContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IDurationGroupsContext); ok {
+		if _, ok := ctx.(IBpmContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -188,11 +196,68 @@ func (s *StartContext) DurationGroups() IDurationGroupsContext {
 		return nil
 	}
 
-	return t.(IDurationGroupsContext)
+	return t.(IBpmContext)
+}
+
+func (s *StartContext) Tuning() ITuningContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(ITuningContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(ITuningContext)
 }
 
 func (s *StartContext) EOF() antlr.TerminalNode {
 	return s.GetToken(TabParserEOF, 0)
+}
+
+func (s *StartContext) AllDurationGroup() []IDurationGroupContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IDurationGroupContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IDurationGroupContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IDurationGroupContext); ok {
+			tst[i] = t.(IDurationGroupContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *StartContext) DurationGroup(i int) IDurationGroupContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IDurationGroupContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IDurationGroupContext)
 }
 
 func (s *StartContext) GetRuleContext() antlr.RuleContext {
@@ -218,13 +283,39 @@ func (s *StartContext) ExitRule(listener antlr.ParseTreeListener) {
 func (p *TabParser) Start_() (localctx IStartContext) {
 	localctx = NewStartContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 0, TabParserRULE_start)
+	var _la int
+
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(14)
-		p.DurationGroups()
+		p.SetState(12)
+		p.Bpm()
 	}
 	{
-		p.SetState(15)
+		p.SetState(13)
+		p.Tuning()
+	}
+	p.SetState(17)
+	p.GetErrorHandler().Sync(p)
+	if p.HasError() {
+		goto errorExit
+	}
+	_la = p.GetTokenStream().LA(1)
+
+	for _la == TabParserINTEGER {
+		{
+			p.SetState(14)
+			p.DurationGroup()
+		}
+
+		p.SetState(19)
+		p.GetErrorHandler().Sync(p)
+		if p.HasError() {
+			goto errorExit
+		}
+		_la = p.GetTokenStream().LA(1)
+	}
+	{
+		p.SetState(20)
 		p.Match(TabParserEOF)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -245,136 +336,207 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// IDurationGroupsContext is an interface to support dynamic dispatch.
-type IDurationGroupsContext interface {
+// IBpmContext is an interface to support dynamic dispatch.
+type IBpmContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
 	// Getter signatures
-	DurationGroup() IDurationGroupContext
-	DurationGroups() IDurationGroupsContext
+	INTEGER() antlr.TerminalNode
 
-	// IsDurationGroupsContext differentiates from other interfaces.
-	IsDurationGroupsContext()
+	// IsBpmContext differentiates from other interfaces.
+	IsBpmContext()
 }
 
-type DurationGroupsContext struct {
+type BpmContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyDurationGroupsContext() *DurationGroupsContext {
-	var p = new(DurationGroupsContext)
+func NewEmptyBpmContext() *BpmContext {
+	var p = new(BpmContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = TabParserRULE_durationGroups
+	p.RuleIndex = TabParserRULE_bpm
 	return p
 }
 
-func InitEmptyDurationGroupsContext(p *DurationGroupsContext) {
+func InitEmptyBpmContext(p *BpmContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = TabParserRULE_durationGroups
+	p.RuleIndex = TabParserRULE_bpm
 }
 
-func (*DurationGroupsContext) IsDurationGroupsContext() {}
+func (*BpmContext) IsBpmContext() {}
 
-func NewDurationGroupsContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *DurationGroupsContext {
-	var p = new(DurationGroupsContext)
+func NewBpmContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *BpmContext {
+	var p = new(BpmContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = TabParserRULE_durationGroups
+	p.RuleIndex = TabParserRULE_bpm
 
 	return p
 }
 
-func (s *DurationGroupsContext) GetParser() antlr.Parser { return s.parser }
+func (s *BpmContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *DurationGroupsContext) DurationGroup() IDurationGroupContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IDurationGroupContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IDurationGroupContext)
+func (s *BpmContext) INTEGER() antlr.TerminalNode {
+	return s.GetToken(TabParserINTEGER, 0)
 }
 
-func (s *DurationGroupsContext) DurationGroups() IDurationGroupsContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IDurationGroupsContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IDurationGroupsContext)
-}
-
-func (s *DurationGroupsContext) GetRuleContext() antlr.RuleContext {
+func (s *BpmContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *DurationGroupsContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *BpmContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *DurationGroupsContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *BpmContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(TabListener); ok {
-		listenerT.EnterDurationGroups(s)
+		listenerT.EnterBpm(s)
 	}
 }
 
-func (s *DurationGroupsContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *BpmContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(TabListener); ok {
-		listenerT.ExitDurationGroups(s)
+		listenerT.ExitBpm(s)
 	}
 }
 
-func (p *TabParser) DurationGroups() (localctx IDurationGroupsContext) {
-	localctx = NewDurationGroupsContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 2, TabParserRULE_durationGroups)
-	p.SetState(21)
-	p.GetErrorHandler().Sync(p)
+func (p *TabParser) Bpm() (localctx IBpmContext) {
+	localctx = NewBpmContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 2, TabParserRULE_bpm)
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(22)
+		p.Match(TabParserT__0)
+		if p.HasError() {
+			// Recognition error - abort rule
+			goto errorExit
+		}
+	}
+	{
+		p.SetState(23)
+		p.Match(TabParserINTEGER)
+		if p.HasError() {
+			// Recognition error - abort rule
+			goto errorExit
+		}
+	}
+
+errorExit:
 	if p.HasError() {
-		goto errorExit
+		v := p.GetError()
+		localctx.SetException(v)
+		p.GetErrorHandler().ReportError(p, v)
+		p.GetErrorHandler().Recover(p, v)
+		p.SetError(nil)
+	}
+	p.ExitRule()
+	return localctx
+	goto errorExit // Trick to prevent compiler error if the label is not used
+}
+
+// ITuningContext is an interface to support dynamic dispatch.
+type ITuningContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// Getter signatures
+	NOTELETTER() antlr.TerminalNode
+	INTEGER() antlr.TerminalNode
+
+	// IsTuningContext differentiates from other interfaces.
+	IsTuningContext()
+}
+
+type TuningContext struct {
+	antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyTuningContext() *TuningContext {
+	var p = new(TuningContext)
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
+	p.RuleIndex = TabParserRULE_tuning
+	return p
+}
+
+func InitEmptyTuningContext(p *TuningContext) {
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
+	p.RuleIndex = TabParserRULE_tuning
+}
+
+func (*TuningContext) IsTuningContext() {}
+
+func NewTuningContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *TuningContext {
+	var p = new(TuningContext)
+
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = TabParserRULE_tuning
+
+	return p
+}
+
+func (s *TuningContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *TuningContext) NOTELETTER() antlr.TerminalNode {
+	return s.GetToken(TabParserNOTELETTER, 0)
+}
+
+func (s *TuningContext) INTEGER() antlr.TerminalNode {
+	return s.GetToken(TabParserINTEGER, 0)
+}
+
+func (s *TuningContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *TuningContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *TuningContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(TabListener); ok {
+		listenerT.EnterTuning(s)
+	}
+}
+
+func (s *TuningContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(TabListener); ok {
+		listenerT.ExitTuning(s)
+	}
+}
+
+func (p *TabParser) Tuning() (localctx ITuningContext) {
+	localctx = NewTuningContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 4, TabParserRULE_tuning)
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(25)
+		p.Match(TabParserNOTELETTER)
+		if p.HasError() {
+			// Recognition error - abort rule
+			goto errorExit
+		}
+	}
+	{
+		p.SetState(26)
+		p.Match(TabParserINTEGER)
+		if p.HasError() {
+			// Recognition error - abort rule
+			goto errorExit
+		}
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 0, p.GetParserRuleContext()) {
-	case 1:
-		p.EnterOuterAlt(localctx, 1)
-		{
-			p.SetState(17)
-			p.DurationGroup()
-		}
-		{
-			p.SetState(18)
-			p.DurationGroups()
-		}
-
-	case 2:
-		p.EnterOuterAlt(localctx, 2)
-		{
-			p.SetState(20)
-			p.DurationGroup()
-		}
-
-	case antlr.ATNInvalidAltNumber:
-		goto errorExit
-	}
+	6
 
 errorExit:
 	if p.HasError() {
@@ -398,7 +560,8 @@ type IDurationGroupContext interface {
 
 	// Getter signatures
 	Duration() IDurationContext
-	NoteGroup() INoteGroupContext
+	AllEntry() []IEntryContext
+	Entry(i int) IEntryContext
 
 	// IsDurationGroupContext differentiates from other interfaces.
 	IsDurationGroupContext()
@@ -452,12 +615,37 @@ func (s *DurationGroupContext) Duration() IDurationContext {
 	return t.(IDurationContext)
 }
 
-func (s *DurationGroupContext) NoteGroup() INoteGroupContext {
+func (s *DurationGroupContext) AllEntry() []IEntryContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IEntryContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IEntryContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IEntryContext); ok {
+			tst[i] = t.(IEntryContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *DurationGroupContext) Entry(i int) IEntryContext {
 	var t antlr.RuleContext
+	j := 0
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(INoteGroupContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
+		if _, ok := ctx.(IEntryContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
 		}
 	}
 
@@ -465,7 +653,7 @@ func (s *DurationGroupContext) NoteGroup() INoteGroupContext {
 		return nil
 	}
 
-	return t.(INoteGroupContext)
+	return t.(IEntryContext)
 }
 
 func (s *DurationGroupContext) GetRuleContext() antlr.RuleContext {
@@ -490,27 +678,45 @@ func (s *DurationGroupContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *TabParser) DurationGroup() (localctx IDurationGroupContext) {
 	localctx = NewDurationGroupContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 4, TabParserRULE_durationGroup)
+	p.EnterRule(localctx, 6, TabParserRULE_durationGroup)
+	var _la int
+
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(23)
+		p.SetState(30)
 		p.Duration()
 	}
 	{
-		p.SetState(24)
-		p.Match(TabParserT__0)
+		p.SetState(31)
+		p.Match(TabParserT__1)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	{
-		p.SetState(25)
-		p.NoteGroup()
+	p.SetState(35)
+	p.GetErrorHandler().Sync(p)
+	if p.HasError() {
+		goto errorExit
+	}
+	_la = p.GetTokenStream().LA(1)
+
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&720) != 0 {
+		{
+			p.SetState(32)
+			p.Entry()
+		}
+
+		p.SetState(37)
+		p.GetErrorHandler().Sync(p)
+		if p.HasError() {
+			goto errorExit
+		}
+		_la = p.GetTokenStream().LA(1)
 	}
 	{
-		p.SetState(26)
-		p.Match(TabParserT__1)
+		p.SetState(38)
+		p.Match(TabParserT__2)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
@@ -662,19 +868,21 @@ func (s *DurDefaultContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *TabParser) Duration() (localctx IDurationContext) {
 	localctx = NewDurationContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 6, TabParserRULE_duration)
-	p.SetState(32)
+	p.EnterRule(localctx, 8, TabParserRULE_duration)
+	var _la int
+
+	p.SetState(49)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 1, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 3, p.GetParserRuleContext()) {
 	case 1:
 		localctx = NewDurDescribedContext(p, localctx)
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(28)
+			p.SetState(40)
 			p.Match(TabParserINTEGER)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -682,27 +890,43 @@ func (p *TabParser) Duration() (localctx IDurationContext) {
 			}
 		}
 		{
-			p.SetState(29)
+			p.SetState(41)
 			p.Match(TabParserDURMOD)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
 			}
 		}
-		{
-			p.SetState(30)
-			p.Match(TabParserINTEGER)
+		p.SetState(45)
+		p.GetErrorHandler().Sync(p)
+		if p.HasError() {
+			goto errorExit
+		}
+		_la = p.GetTokenStream().LA(1)
+
+		for _la == TabParserINTEGER {
+			{
+				p.SetState(42)
+				p.Match(TabParserINTEGER)
+				if p.HasError() {
+					// Recognition error - abort rule
+					goto errorExit
+				}
+			}
+
+			p.SetState(47)
+			p.GetErrorHandler().Sync(p)
 			if p.HasError() {
-				// Recognition error - abort rule
 				goto errorExit
 			}
+			_la = p.GetTokenStream().LA(1)
 		}
 
 	case 2:
 		localctx = NewDurDefaultContext(p, localctx)
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(31)
+			p.SetState(48)
 			p.Match(TabParserINTEGER)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -727,391 +951,76 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// INoteGroupContext is an interface to support dynamic dispatch.
-type INoteGroupContext interface {
+// IEntryContext is an interface to support dynamic dispatch.
+type IEntryContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
-	// Getter signatures
-	Note() INoteContext
-	NoteGroup() INoteGroupContext
-	Chord() IChordContext
-
-	// IsNoteGroupContext differentiates from other interfaces.
-	IsNoteGroupContext()
+	// IsEntryContext differentiates from other interfaces.
+	IsEntryContext()
 }
 
-type NoteGroupContext struct {
+type EntryContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyNoteGroupContext() *NoteGroupContext {
-	var p = new(NoteGroupContext)
+func NewEmptyEntryContext() *EntryContext {
+	var p = new(EntryContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = TabParserRULE_noteGroup
+	p.RuleIndex = TabParserRULE_entry
 	return p
 }
 
-func InitEmptyNoteGroupContext(p *NoteGroupContext) {
+func InitEmptyEntryContext(p *EntryContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = TabParserRULE_noteGroup
+	p.RuleIndex = TabParserRULE_entry
 }
 
-func (*NoteGroupContext) IsNoteGroupContext() {}
+func (*EntryContext) IsEntryContext() {}
 
-func NewNoteGroupContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *NoteGroupContext {
-	var p = new(NoteGroupContext)
+func NewEntryContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *EntryContext {
+	var p = new(EntryContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = TabParserRULE_noteGroup
+	p.RuleIndex = TabParserRULE_entry
 
 	return p
 }
 
-func (s *NoteGroupContext) GetParser() antlr.Parser { return s.parser }
+func (s *EntryContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *NoteGroupContext) Note() INoteContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(INoteContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(INoteContext)
-}
-
-func (s *NoteGroupContext) NoteGroup() INoteGroupContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(INoteGroupContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(INoteGroupContext)
-}
-
-func (s *NoteGroupContext) Chord() IChordContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IChordContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IChordContext)
-}
-
-func (s *NoteGroupContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *NoteGroupContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *NoteGroupContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(TabListener); ok {
-		listenerT.EnterNoteGroup(s)
-	}
-}
-
-func (s *NoteGroupContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(TabListener); ok {
-		listenerT.ExitNoteGroup(s)
-	}
-}
-
-func (p *TabParser) NoteGroup() (localctx INoteGroupContext) {
-	localctx = NewNoteGroupContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 8, TabParserRULE_noteGroup)
-	p.SetState(43)
-	p.GetErrorHandler().Sync(p)
-	if p.HasError() {
-		goto errorExit
-	}
-
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 2, p.GetParserRuleContext()) {
-	case 1:
-		p.EnterOuterAlt(localctx, 1)
-		{
-			p.SetState(34)
-			p.Note()
-		}
-		{
-			p.SetState(35)
-			p.NoteGroup()
-		}
-
-	case 2:
-		p.EnterOuterAlt(localctx, 2)
-		{
-			p.SetState(37)
-			p.Match(TabParserT__2)
-			if p.HasError() {
-				// Recognition error - abort rule
-				goto errorExit
-			}
-		}
-		{
-			p.SetState(38)
-			p.Chord()
-		}
-		{
-			p.SetState(39)
-			p.Match(TabParserT__3)
-			if p.HasError() {
-				// Recognition error - abort rule
-				goto errorExit
-			}
-		}
-		{
-			p.SetState(40)
-			p.NoteGroup()
-		}
-
-	case 3:
-		p.EnterOuterAlt(localctx, 3)
-		{
-			p.SetState(42)
-			p.Note()
-		}
-
-	case antlr.ATNInvalidAltNumber:
-		goto errorExit
-	}
-
-errorExit:
-	if p.HasError() {
-		v := p.GetError()
-		localctx.SetException(v)
-		p.GetErrorHandler().ReportError(p, v)
-		p.GetErrorHandler().Recover(p, v)
-		p.SetError(nil)
-	}
-	p.ExitRule()
-	return localctx
-	goto errorExit // Trick to prevent compiler error if the label is not used
-}
-
-// IChordContext is an interface to support dynamic dispatch.
-type IChordContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-	// IsChordContext differentiates from other interfaces.
-	IsChordContext()
-}
-
-type ChordContext struct {
-	antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyChordContext() *ChordContext {
-	var p = new(ChordContext)
-	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = TabParserRULE_chord
-	return p
-}
-
-func InitEmptyChordContext(p *ChordContext) {
-	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = TabParserRULE_chord
-}
-
-func (*ChordContext) IsChordContext() {}
-
-func NewChordContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ChordContext {
-	var p = new(ChordContext)
-
-	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = TabParserRULE_chord
-
-	return p
-}
-
-func (s *ChordContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *ChordContext) CopyAll(ctx *ChordContext) {
+func (s *EntryContext) CopyAll(ctx *EntryContext) {
 	s.CopyFrom(&ctx.BaseParserRuleContext)
 }
 
-func (s *ChordContext) GetRuleContext() antlr.RuleContext {
+func (s *EntryContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *ChordContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-type SimpleChordContext struct {
-	ChordContext
-}
-
-func NewSimpleChordContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *SimpleChordContext {
-	var p = new(SimpleChordContext)
-
-	InitEmptyChordContext(&p.ChordContext)
-	p.parser = parser
-	p.CopyAll(ctx.(*ChordContext))
-
-	return p
-}
-
-func (s *SimpleChordContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *SimpleChordContext) NoteGroup() INoteGroupContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(INoteGroupContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(INoteGroupContext)
-}
-
-func (s *SimpleChordContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(TabListener); ok {
-		listenerT.EnterSimpleChord(s)
-	}
-}
-
-func (s *SimpleChordContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(TabListener); ok {
-		listenerT.ExitSimpleChord(s)
-	}
-}
-
-func (p *TabParser) Chord() (localctx IChordContext) {
-	localctx = NewChordContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 10, TabParserRULE_chord)
-	localctx = NewSimpleChordContext(p, localctx)
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(45)
-		p.NoteGroup()
-	}
-
-errorExit:
-	if p.HasError() {
-		v := p.GetError()
-		localctx.SetException(v)
-		p.GetErrorHandler().ReportError(p, v)
-		p.GetErrorHandler().Recover(p, v)
-		p.SetError(nil)
-	}
-	p.ExitRule()
-	return localctx
-	goto errorExit // Trick to prevent compiler error if the label is not used
-}
-
-// INoteContext is an interface to support dynamic dispatch.
-type INoteContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-	// IsNoteContext differentiates from other interfaces.
-	IsNoteContext()
-}
-
-type NoteContext struct {
-	antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyNoteContext() *NoteContext {
-	var p = new(NoteContext)
-	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = TabParserRULE_note
-	return p
-}
-
-func InitEmptyNoteContext(p *NoteContext) {
-	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = TabParserRULE_note
-}
-
-func (*NoteContext) IsNoteContext() {}
-
-func NewNoteContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *NoteContext {
-	var p = new(NoteContext)
-
-	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = TabParserRULE_note
-
-	return p
-}
-
-func (s *NoteContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *NoteContext) CopyAll(ctx *NoteContext) {
-	s.CopyFrom(&ctx.BaseParserRuleContext)
-}
-
-func (s *NoteContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *NoteContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *EntryContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
 type PlayFretContext struct {
-	NoteContext
+	EntryContext
 }
 
 func NewPlayFretContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *PlayFretContext {
 	var p = new(PlayFretContext)
 
-	InitEmptyNoteContext(&p.NoteContext)
+	InitEmptyEntryContext(&p.EntryContext)
 	p.parser = parser
-	p.CopyAll(ctx.(*NoteContext))
+	p.CopyAll(ctx.(*EntryContext))
 
 	return p
 }
 
 func (s *PlayFretContext) GetRuleContext() antlr.RuleContext {
 	return s
-}
-
-func (s *PlayFretContext) STR() antlr.TerminalNode {
-	return s.GetToken(TabParserSTR, 0)
 }
 
 func (s *PlayFretContext) INTEGER() antlr.TerminalNode {
@@ -1131,15 +1040,15 @@ func (s *PlayFretContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 type PauseContext struct {
-	NoteContext
+	EntryContext
 }
 
 func NewPauseContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *PauseContext {
 	var p = new(PauseContext)
 
-	InitEmptyNoteContext(&p.NoteContext)
+	InitEmptyEntryContext(&p.EntryContext)
 	p.parser = parser
-	p.CopyAll(ctx.(*NoteContext))
+	p.CopyAll(ctx.(*EntryContext))
 
 	return p
 }
@@ -1161,15 +1070,15 @@ func (s *PauseContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 type BendContext struct {
-	NoteContext
+	EntryContext
 }
 
 func NewBendContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *BendContext {
 	var p = new(BendContext)
 
-	InitEmptyNoteContext(&p.NoteContext)
+	InitEmptyEntryContext(&p.EntryContext)
 	p.parser = parser
-	p.CopyAll(ctx.(*NoteContext))
+	p.CopyAll(ctx.(*EntryContext))
 
 	return p
 }
@@ -1178,24 +1087,12 @@ func (s *BendContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *BendContext) Note() INoteContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(INoteContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(INoteContext)
+func (s *BendContext) AllINTEGER() []antlr.TerminalNode {
+	return s.GetTokens(TabParserINTEGER)
 }
 
-func (s *BendContext) INTEGER() antlr.TerminalNode {
-	return s.GetToken(TabParserINTEGER, 0)
+func (s *BendContext) INTEGER(i int) antlr.TerminalNode {
+	return s.GetToken(TabParserINTEGER, i)
 }
 
 func (s *BendContext) EnterRule(listener antlr.ParseTreeListener) {
@@ -1210,29 +1107,61 @@ func (s *BendContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (p *TabParser) Note() (localctx INoteContext) {
-	localctx = NewNoteContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 12, TabParserRULE_note)
-	p.SetState(56)
+type SimpleChordContext struct {
+	EntryContext
+}
+
+func NewSimpleChordContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *SimpleChordContext {
+	var p = new(SimpleChordContext)
+
+	InitEmptyEntryContext(&p.EntryContext)
+	p.parser = parser
+	p.CopyAll(ctx.(*EntryContext))
+
+	return p
+}
+
+func (s *SimpleChordContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *SimpleChordContext) AllINTEGER() []antlr.TerminalNode {
+	return s.GetTokens(TabParserINTEGER)
+}
+
+func (s *SimpleChordContext) INTEGER(i int) antlr.TerminalNode {
+	return s.GetToken(TabParserINTEGER, i)
+}
+
+func (s *SimpleChordContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(TabListener); ok {
+		listenerT.EnterSimpleChord(s)
+	}
+}
+
+func (s *SimpleChordContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(TabListener); ok {
+		listenerT.ExitSimpleChord(s)
+	}
+}
+
+func (p *TabParser) Entry() (localctx IEntryContext) {
+	localctx = NewEntryContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 10, TabParserRULE_entry)
+	var _la int
+
+	p.SetState(66)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
 	switch p.GetTokenStream().LA(1) {
-	case TabParserSTR:
+	case TabParserINTEGER:
 		localctx = NewPlayFretContext(p, localctx)
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(47)
-			p.Match(TabParserSTR)
-			if p.HasError() {
-				// Recognition error - abort rule
-				goto errorExit
-			}
-		}
-		{
-			p.SetState(48)
+			p.SetState(51)
 			p.Match(TabParserINTEGER)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -1240,11 +1169,43 @@ func (p *TabParser) Note() (localctx INoteContext) {
 			}
 		}
 
-	case TabParserT__4:
-		localctx = NewPauseContext(p, localctx)
+	case TabParserT__3:
+		localctx = NewSimpleChordContext(p, localctx)
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(49)
+			p.SetState(52)
+			p.Match(TabParserT__3)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
+		}
+		p.SetState(56)
+		p.GetErrorHandler().Sync(p)
+		if p.HasError() {
+			goto errorExit
+		}
+		_la = p.GetTokenStream().LA(1)
+
+		for _la == TabParserINTEGER {
+			{
+				p.SetState(53)
+				p.Match(TabParserINTEGER)
+				if p.HasError() {
+					// Recognition error - abort rule
+					goto errorExit
+				}
+			}
+
+			p.SetState(58)
+			p.GetErrorHandler().Sync(p)
+			if p.HasError() {
+				goto errorExit
+			}
+			_la = p.GetTokenStream().LA(1)
+		}
+		{
+			p.SetState(59)
 			p.Match(TabParserT__4)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -1253,22 +1214,22 @@ func (p *TabParser) Note() (localctx INoteContext) {
 		}
 
 	case TabParserT__5:
-		localctx = NewBendContext(p, localctx)
+		localctx = NewPauseContext(p, localctx)
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(50)
+			p.SetState(60)
 			p.Match(TabParserT__5)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
 			}
 		}
+
+	case TabParserT__6:
+		localctx = NewBendContext(p, localctx)
+		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(51)
-			p.Note()
-		}
-		{
-			p.SetState(52)
+			p.SetState(61)
 			p.Match(TabParserT__6)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -1276,7 +1237,7 @@ func (p *TabParser) Note() (localctx INoteContext) {
 			}
 		}
 		{
-			p.SetState(53)
+			p.SetState(62)
 			p.Match(TabParserINTEGER)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -1284,8 +1245,24 @@ func (p *TabParser) Note() (localctx INoteContext) {
 			}
 		}
 		{
-			p.SetState(54)
-			p.Match(TabParserT__1)
+			p.SetState(63)
+			p.Match(TabParserT__7)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
+		}
+		{
+			p.SetState(64)
+			p.Match(TabParserINTEGER)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
+		}
+		{
+			p.SetState(65)
+			p.Match(TabParserT__2)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
