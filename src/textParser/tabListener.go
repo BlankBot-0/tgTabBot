@@ -30,6 +30,7 @@ var velocity = 60
 type tabListener struct {
 	*parser.BaseTabListener
 	enc                    *midi.Encoder
+	track                  *midi.Track
 	tuning                 [6]uint8
 	prevDuration           uint32
 	curDuration            uint32
@@ -37,7 +38,10 @@ type tabListener struct {
 }
 
 func newTabListener(outputMidi *bytes.Buffer, ticksPerQuarterNote uint16) *tabListener {
-	return &tabListener{enc: midi.NewEncoder(outputMidi, midi.SingleTrack, ticksPerQuarterNote),
+	enc := midi.NewEncoder(outputMidi, midi.SingleTrack, ticksPerQuarterNote)
+
+	return &tabListener{enc: enc,
+		track:        enc.NewTrack(),
 		tuning:       [6]uint8{64, 59, 55, 50, 45, 40},
 		prevDuration: uint32(ticksPerQuarterNote),
 		curDuration:  uint32(ticksPerQuarterNote)}
@@ -49,10 +53,13 @@ func (s *tabListener) ExitBpm(ctx *parser.BpmContext) {
 	if err != nil {
 		panic(err)
 	}
-	s.enc.Tracks[0].Add(0, midi.TempoEvent(bpm))
+	s.track.Add(0, midi.TempoEvent(bpm))
 }
 
 func (s *tabListener) ExitTuning(ctx *parser.TuningContext) {
+	if n := ctx.GetChildCount(); n != 6 {
+		panic(errors.New("number of strings must be 6"))
+	}
 	for i, child := range ctx.GetChildren() {
 		child := child.(antlr.ParseTree)
 		fret0 := strings.ToUpper(child.GetText())
@@ -109,12 +116,12 @@ func (s *tabListener) ExitSimpleChord(ctx *parser.SimpleChordContext) {
 	tab := ctx.GetChild(1).(antlr.ParseTree).GetText()
 	note := s.tabToNote(tab)
 	dur := s.duration()
-	s.enc.Tracks[0].AddAfterDelta(dur, midi.NoteOn(0, note, velocity))
+	s.track.AddAfterDelta(dur, midi.NoteOn(0, note, velocity))
 
 	for i := 2; i != ctx.GetChildCount()-1; i++ {
 		tab = ctx.GetChild(i).(antlr.ParseTree).GetText()
 		note = s.tabToNote(tab)
-		s.enc.Tracks[0].AddAfterDelta(0, midi.NoteOn(0, note, velocity))
+		s.track.AddAfterDelta(0, midi.NoteOn(0, note, velocity))
 	}
 
 	s.durationGroupBeginning = false
@@ -124,24 +131,24 @@ func (s *tabListener) ExitSimpleChord(ctx *parser.SimpleChordContext) {
 	tab = ctx.GetChild(1).(antlr.ParseTree).GetText()
 	note = s.tabToNote(tab)
 	dur = s.duration()
-	s.enc.Tracks[0].AddAfterDelta(dur, midi.NoteOff(0, note))
+	s.track.AddAfterDelta(dur, midi.NoteOff(0, note))
 	for i := 2; i != ctx.GetChildCount()-1; i++ {
 		tab = ctx.GetChild(i).(antlr.ParseTree).GetText()
 		note = s.tabToNote(tab)
-		s.enc.Tracks[0].AddAfterDelta(0, midi.NoteOff(0, note))
+		s.track.AddAfterDelta(0, midi.NoteOff(0, note))
 	}
 }
 
 func (s *tabListener) ExitPlayFret(ctx parser.PlayFretContext) {
 	tab := ctx.GetText()
 	note := s.tabToNote(tab)
-	s.enc.Tracks[0].AddAfterDelta(s.duration(), midi.NoteOn(0, note, velocity))
+	s.track.AddAfterDelta(s.duration(), midi.NoteOn(0, note, velocity))
 
 	s.durationGroupBeginning = false
 
-	s.enc.Tracks[0].AddAfterDelta(s.duration(), midi.NoteOff(0, note))
+	s.track.AddAfterDelta(s.duration(), midi.NoteOff(0, note))
 }
 
 func (s *tabListener) ExitStart(ctx parser.StartContext) {
-	s.enc.Tracks[0].AddAfterDelta(s.curDuration, midi.EndOfTrack())
+	s.track.AddAfterDelta(s.curDuration, midi.EndOfTrack())
 }

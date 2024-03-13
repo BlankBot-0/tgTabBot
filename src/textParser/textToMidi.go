@@ -6,7 +6,7 @@ import (
 	"tgScoreBot/src/textParser/parser"
 )
 
-func Tab(input string) *bytes.Buffer {
+func TabToMidi(input string) *bytes.Buffer {
 	// Setup the input
 	is := antlr.NewInputStream(input)
 
@@ -28,9 +28,3 @@ func Tab(input string) *bytes.Buffer {
 
 	return output
 }
-
-//func TestTabListener(t *testing.T) {
-//	input := `BPM: 120
-//   			  E2 A2 D3 G3 B3 E4
-//			  4([65 57]) 16(65 65 65 65) 4([65 57]) 16(65 65 65 65)`
-//}

@@ -2,10 +2,14 @@ module tgScoreBot
 
 go 1.22
 
-require github.com/antlr4-go/antlr/v4 v4.13.0
+require (
+	github.com/antlr4-go/antlr/v4 v4.13.0
+	github.com/go-audio/midi v1.0.0
+	github.com/sinshu/go-meltysynth v0.0.0-20230205031334-05d311382fc4
+)
 
 require (
-	github.com/go-audio/midi v1.0.0 // indirect
+	github.com/sunicy/go-lame v0.0.0-20200422031049-1c192eaafa39 // indirect
 	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc // indirect
 )
 

@@ -536,7 +536,7 @@ func (p *TabParser) Tuning() (localctx ITuningContext) {
 		}
 	}
 
-	6
+	//	6
 
 errorExit:
 	if p.HasError() {

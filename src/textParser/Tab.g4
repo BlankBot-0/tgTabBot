@@ -51,7 +51,7 @@ start: bpm tuning durationGroup* EOF;
 
 bpm : 'BPM' INTEGER;
 
-tuning: (NOTELETTER INTEGER){6};
+tuning: (NOTELETTER INTEGER)+;
 
 durationGroup
     : duration '(' entry* ')'
