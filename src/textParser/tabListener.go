@@ -1,14 +1,16 @@
 package textParser
 
 import (
-	"bytes"
 	"errors"
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/go-audio/midi"
+	"io"
 	"strconv"
 	"strings"
 	"tgScoreBot/src/textParser/parser"
 )
+
+var _ parser.TabListener = (*tabListener)(nil)
 
 var noteMap = map[string]uint8{
 	"C":  12,
@@ -29,22 +31,19 @@ var velocity = 60
 
 type tabListener struct {
 	*parser.BaseTabListener
-	enc                    *midi.Encoder
-	track                  *midi.Track
-	tuning                 [6]uint8
-	prevDuration           uint32
-	curDuration            uint32
-	durationGroupBeginning bool
+	enc         *midi.Encoder
+	track       *midi.Track
+	tuning      [6]uint8
+	curDuration uint32
 }
 
-func newTabListener(outputMidi *bytes.Buffer, ticksPerQuarterNote uint16) *tabListener {
+func newTabListener(outputMidi io.Writer, ticksPerQuarterNote uint16) *tabListener {
 	enc := midi.NewEncoder(outputMidi, midi.SingleTrack, ticksPerQuarterNote)
 
 	return &tabListener{enc: enc,
-		track:        enc.NewTrack(),
-		tuning:       [6]uint8{64, 59, 55, 50, 45, 40},
-		prevDuration: uint32(ticksPerQuarterNote),
-		curDuration:  uint32(ticksPerQuarterNote)}
+		track:       enc.NewTrack(),
+		tuning:      [6]uint8{64, 59, 55, 50, 45, 40},
+		curDuration: uint32(ticksPerQuarterNote)}
 }
 
 func (s *tabListener) ExitBpm(ctx *parser.BpmContext) {
@@ -81,9 +80,31 @@ func (s *tabListener) ExitDurDefault(ctx *parser.DurDefaultContext) {
 	if err != nil {
 		panic(err)
 	}
-	s.prevDuration = s.curDuration
 	s.curDuration = uint32(s.enc.TicksPerQuarterNote) * 4 / uint32(newDur)
-	s.durationGroupBeginning = true
+}
+
+func (s *tabListener) ExitDurDescribed(ctx *parser.DurDescribedContext) {
+	if n := ctx.GetChildCount(); n != 3 {
+		panic(errors.New("incorrect duration description"))
+	}
+	durationStr := ctx.GetChild(0).(antlr.ParseTree).GetText()
+	newDur, err := strconv.ParseUint(durationStr, 10, 16)
+	if err != nil {
+		panic(err)
+	}
+
+	tupleTypeStr := ctx.GetChild(2).(antlr.ParseTree).GetText()
+	tupleType, err := strconv.ParseUint(tupleTypeStr, 10, 16)
+	if err != nil {
+		panic(err)
+	}
+
+	newDur = uint64(s.enc.TicksPerQuarterNote) * 8 / tupleType / newDur
+	if ctx.GetChild(1).(antlr.ParseTree).GetText() == "._" {
+		newDur = newDur + newDur/2
+	}
+
+	s.curDuration = uint32(newDur)
 }
 
 func (s *tabListener) tabToNote(tab string) int {
@@ -95,42 +116,29 @@ func (s *tabListener) tabToNote(tab string) int {
 	if err != nil {
 		panic(err)
 	}
-	if note := s.tuning[str-1] * uint8(fret); 0 > note || note > 127 {
+	if note := s.tuning[str-1] + uint8(fret); 0 > note || note > 127 {
 		panic(errors.New("note out of range"))
 	} else {
 		return int(note)
 	}
 }
 
-func (s *tabListener) duration() uint32 {
-	if s.durationGroupBeginning {
-		return s.prevDuration
-	}
-	return s.curDuration
-}
-
 // ExitSimpleChord is called when production SimpleChord is exited.
 func (s *tabListener) ExitSimpleChord(ctx *parser.SimpleChordContext) {
 	// The first NoteOn event must appear after correct time
 	// and the following must appear instantaneously after it
-	tab := ctx.GetChild(1).(antlr.ParseTree).GetText()
-	note := s.tabToNote(tab)
-	dur := s.duration()
-	s.track.AddAfterDelta(dur, midi.NoteOn(0, note, velocity))
 
-	for i := 2; i != ctx.GetChildCount()-1; i++ {
-		tab = ctx.GetChild(i).(antlr.ParseTree).GetText()
-		note = s.tabToNote(tab)
+	for i := 1; i != ctx.GetChildCount()-1; i++ {
+		tab := ctx.GetChild(i).(antlr.ParseTree).GetText()
+		note := s.tabToNote(tab)
 		s.track.AddAfterDelta(0, midi.NoteOn(0, note, velocity))
 	}
 
-	s.durationGroupBeginning = false
-
 	// first NoteOff event must appear after correct time
 	// and following must appear instantaneously
-	tab = ctx.GetChild(1).(antlr.ParseTree).GetText()
-	note = s.tabToNote(tab)
-	dur = s.duration()
+	tab := ctx.GetChild(1).(antlr.ParseTree).GetText()
+	note := s.tabToNote(tab)
+	dur := s.curDuration
 	s.track.AddAfterDelta(dur, midi.NoteOff(0, note))
 	for i := 2; i != ctx.GetChildCount()-1; i++ {
 		tab = ctx.GetChild(i).(antlr.ParseTree).GetText()
@@ -139,16 +147,20 @@ func (s *tabListener) ExitSimpleChord(ctx *parser.SimpleChordContext) {
 	}
 }
 
-func (s *tabListener) ExitPlayFret(ctx parser.PlayFretContext) {
+func (s *tabListener) ExitPlayFret(ctx *parser.PlayFretContext) {
 	tab := ctx.GetText()
 	note := s.tabToNote(tab)
-	s.track.AddAfterDelta(s.duration(), midi.NoteOn(0, note, velocity))
+	s.track.AddAfterDelta(0, midi.NoteOn(0, note, velocity))
 
-	s.durationGroupBeginning = false
+	s.track.AddAfterDelta(s.curDuration, midi.NoteOff(0, note))
 
-	s.track.AddAfterDelta(s.duration(), midi.NoteOff(0, note))
 }
 
-func (s *tabListener) ExitStart(ctx parser.StartContext) {
+func (s *tabListener) ExitPause(ctx *parser.PauseContext) {
+	s.track.AddAfterDelta(0, midi.NoteOn(0, 0, 0))
+	s.track.AddAfterDelta(s.curDuration, midi.NoteOff(0, 0))
+}
+
+func (s *tabListener) ExitStart(ctx *parser.StartContext) {
 	s.track.AddAfterDelta(s.curDuration, midi.EndOfTrack())
 }

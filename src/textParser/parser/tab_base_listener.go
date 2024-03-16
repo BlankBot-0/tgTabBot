@@ -39,6 +39,12 @@ func (s *BaseTabListener) EnterTuning(ctx *TuningContext) {}
 // ExitTuning is called when production tuning is exited.
 func (s *BaseTabListener) ExitTuning(ctx *TuningContext) {}
 
+// EnterTuningImpl is called when production tuningImpl is entered.
+func (s *BaseTabListener) EnterTuningImpl(ctx *TuningImplContext) {}
+
+// ExitTuningImpl is called when production tuningImpl is exited.
+func (s *BaseTabListener) ExitTuningImpl(ctx *TuningImplContext) {}
+
 // EnterDurationGroup is called when production durationGroup is entered.
 func (s *BaseTabListener) EnterDurationGroup(ctx *DurationGroupContext) {}
 

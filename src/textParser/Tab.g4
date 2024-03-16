@@ -51,7 +51,8 @@ start: bpm tuning durationGroup* EOF;
 
 bpm : 'BPM' INTEGER;
 
-tuning: (NOTELETTER INTEGER)+;
+tuning: tuningImpl tuningImpl tuningImpl tuningImpl tuningImpl tuningImpl;
+tuningImpl : NOTELETTER INTEGER;
 
 durationGroup
     : duration '(' entry* ')'

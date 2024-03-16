@@ -1,11 +1,12 @@
 package soundGen
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/binary"
 	"fmt"
 	"github.com/sinshu/go-meltysynth/meltysynth"
-	"github.com/sunicy/go-lame"
+	"github.com/viert/go-lame"
 	"io"
 	"math"
 	"os"
@@ -27,7 +28,7 @@ func MidiToMp3(midiInput io.Reader, sf2Path, mp3FileName string) error {
 	}
 
 	pcm := bytes.Buffer{}
-	midiToPcm(soundFont, midiInput, &pcm)
+	MidiToPcm(soundFont, midiInput, &pcm)
 	pcmToMp3(&pcm, mp3FileName)
 	return nil
 }
@@ -35,15 +36,14 @@ func MidiToMp3(midiInput io.Reader, sf2Path, mp3FileName string) error {
 func pcmToMp3(pcmInput io.Reader, mp3FileName string) {
 	mp3File, _ := os.OpenFile(mp3FileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
 	defer mp3File.Close()
-	wr, err := lame.NewWriter(mp3File)
-	if err != nil {
-		panic("cannot create lame writer, err: " + err.Error())
-	}
-	io.Copy(wr, pcmInput)
-	err = wr.Close()
+	enc := lame.NewEncoder(mp3File)
+	enc.SetMode(2)
+	defer enc.Close()
+	r := bufio.NewReader(pcmInput)
+	r.WriteTo(enc)
 }
 
-func midiToPcm(soundFont *meltysynth.SoundFont, midiInput io.Reader, PcmOutput io.Writer) error {
+func MidiToPcm(soundFont *meltysynth.SoundFont, midiInput io.Reader, PcmOutput io.Writer) error {
 	// Create the synthesizer.
 	settings := meltysynth.NewSynthesizerSettings(44100)
 	synthesizer, err := meltysynth.NewSynthesizer(soundFont, settings)

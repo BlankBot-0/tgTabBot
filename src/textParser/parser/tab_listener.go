@@ -17,6 +17,9 @@ type TabListener interface {
 	// EnterTuning is called when entering the tuning production.
 	EnterTuning(c *TuningContext)
 
+	// EnterTuningImpl is called when entering the tuningImpl production.
+	EnterTuningImpl(c *TuningImplContext)
+
 	// EnterDurationGroup is called when entering the durationGroup production.
 	EnterDurationGroup(c *DurationGroupContext)
 
@@ -46,6 +49,9 @@ type TabListener interface {
 
 	// ExitTuning is called when exiting the tuning production.
 	ExitTuning(c *TuningContext)
+
+	// ExitTuningImpl is called when exiting the tuningImpl production.
+	ExitTuningImpl(c *TuningImplContext)
 
 	// ExitDurationGroup is called when exiting the durationGroup production.
 	ExitDurationGroup(c *DurationGroupContext)

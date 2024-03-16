@@ -1,12 +1,28 @@
 package main
 
 import (
+	"bytes"
 	"tgScoreBot/src/soundGen"
 	"tgScoreBot/src/textParser"
 )
 
 func main() {
-	textInput := "BPM 120\nE2 A2 D3 G3 B3 E4 \n4([65 57]) 16(65 65 65 65) 4([65 57]) 16(65 65 65 65)"
-	midi := textParser.TabToMidi(textInput)
-	soundGen.MidiToMp3(midi, "TimGM6mb.sf2", "testOutput.mp3")
+	textInput := "BPM 120 E2 A2 D3 G3 B3 E4 " +
+		"16(62 64 64 64 52 64 64 57 64 56 64 64 57 64 56 64) " +
+		"16(62 64 64 64 52 64 64 57 64 56 64 64 57 64 56 64) " +
+		"16(62 64 64 64 52 64 64 57 64 56 64 64 57 64 56 64) " +
+		"16(62 64 64 64 52 64 64 51 64 52 64 64 51 64 52 64) " +
+		"16_3(313 38 511 38 313 511 313 38 511) 8_3(38) 16_3(59) " +
+		"16_3(311 38 59 38 311 59 311 38 59) 8_3(38) 16_3(57) " +
+		"16_3(38 36 57 36 49 57 49 46 57 46 49 57) " +
+		"16_3(38 36 57 36 49 57 49 46 57) 8(46) " +
+		"16_3(313 38 511 38 313 511 313 38 511) 8_3(38) 16_3(59) " +
+		"16_3(311 38 59 38 311 59 311 38 59) 8_3(38) 16_3(57) " +
+		"16_3(38 36 57 36 49 57 49 46 57 46 49 57) " +
+		"16_3(38 36 57 36 49 57 49 46 57) 8(46) "
+	midi := new(bytes.Buffer)
+	textParser.TabToMidi(textInput, midi)
+	//sf2 := "FSBSguitar.sf2"
+	sf2 := "TimGM6mb.sf2"
+	soundGen.MidiToMp3(midi, sf2, "testOutput.mp3")
 }

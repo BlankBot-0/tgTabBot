@@ -6,7 +6,7 @@ github.com/mattetti/filebuffer v1.0.0 h1:ixTvQ0JjBTwWbdpDZ98lLrydo7KRi8xNRIi5RFs
 github.com/mattetti/filebuffer v1.0.0/go.mod h1:X6nyAIge2JGVmuJt2MFCqmHrb/5IHiphfHtot0s5cnI=
 github.com/sinshu/go-meltysynth v0.0.0-20230205031334-05d311382fc4 h1:VgeknFh4pciKVtwtjn9tZtItvV20x/+10NnUXKfyW6s=
 github.com/sinshu/go-meltysynth v0.0.0-20230205031334-05d311382fc4/go.mod h1:Afi/YpLztHvWSbiLFi6RgtxLLwmIiRmd/q7f3Ymed2g=
-github.com/sunicy/go-lame v0.0.0-20200422031049-1c192eaafa39 h1:P/6L4pZMkHutxyefALLAiXCPkcD+5NcvJRGayZmtBmY=
-github.com/sunicy/go-lame v0.0.0-20200422031049-1c192eaafa39/go.mod h1:H5mJP3sFKpUGaeckgSaMVXcTgnSgImhx54qyQXbpTVY=
+github.com/viert/go-lame v0.0.0-20201108052322-bb552596b11d h1:LptdD7GTUZeklomtW5vZ1AHwBvDBUCZ2Ftpaz7uEI7g=
+github.com/viert/go-lame v0.0.0-20201108052322-bb552596b11d/go.mod h1:EqTcYM7y4JlSfeTI47pmNu3EZQuCuLQefsQyg1Imlz8=
 golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc h1:mCRnTeVUjcrhlRmO0VK8a6k6Rrf6TF9htwo2pJVSjIU=
 golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc/go.mod h1:V1LtkGg67GoY2N1AnLN78QLrzxkLyJw7RJb1gzOOz9w=

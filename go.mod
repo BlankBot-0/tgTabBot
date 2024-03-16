@@ -9,7 +9,7 @@ require (
 )
 
 require (
-	github.com/sunicy/go-lame v0.0.0-20200422031049-1c192eaafa39 // indirect
+	github.com/viert/go-lame v0.0.0-20201108052322-bb552596b11d // indirect
 	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc // indirect
 )
 
