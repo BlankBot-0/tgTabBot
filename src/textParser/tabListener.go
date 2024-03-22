@@ -2,6 +2,7 @@ package textParser
 
 import (
 	"errors"
+	"fmt"
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/go-audio/midi"
 	"io"
@@ -11,6 +12,13 @@ import (
 )
 
 var _ parser.TabListener = (*tabListener)(nil)
+
+const (
+	minKey         = 0
+	maxKey         = 127
+	octaveDistance = 12
+	stringsNumber  = 6
+)
 
 var noteMap = map[string]uint8{
 	"C":  12,
@@ -35,29 +43,35 @@ type tabListener struct {
 	track       *midi.Track
 	tuning      [6]uint8
 	curDuration uint32
+	errs        []error
 }
 
-func newTabListener(outputMidi io.Writer, ticksPerQuarterNote uint16) *tabListener {
-	enc := midi.NewEncoder(outputMidi, midi.SingleTrack, ticksPerQuarterNote)
-
+// newTabListener returns a new tabListener given an output and midi clock resolution
+func newTabListener(outputMidi io.Writer, opts TabOpts) *tabListener {
+	enc := midi.NewEncoder(outputMidi, midi.SingleTrack, opts.ticksPerQuarterNote)
 	return &tabListener{enc: enc,
 		track:       enc.NewTrack(),
-		tuning:      [6]uint8{64, 59, 55, 50, 45, 40},
-		curDuration: uint32(ticksPerQuarterNote)}
+		opts:        opts,
+		curDuration: uint32(opts.ticksPerQuarterNote)}
+}
+
+// Implement antlr ErrorListener interface for syntax errors.
+func (s *tabListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol any, line, column int, msg string, e antlr.RecognitionException) {
+	s.errs = append(s.errs, fmt.Errorf("(%d:%d) %s", line, column, msg))
 }
 
 func (s *tabListener) ExitBpm(ctx *parser.BpmContext) {
 	bpmStr := ctx.GetChild(1).(antlr.ParseTree).GetText()
 	bpm, err := strconv.ParseFloat(bpmStr, 64)
 	if err != nil {
-		panic(err)
+		s.errs = append(s.errs, fmt.Errorf("ExitBpm error: %w", err))
 	}
 	s.track.Add(0, midi.TempoEvent(bpm))
 }
 
 func (s *tabListener) ExitTuning(ctx *parser.TuningContext) {
 	if n := ctx.GetChildCount(); n != 6 {
-		panic(errors.New("number of strings must be 6"))
+		s.errs = append(s.errs, fmt.Errorf("only 6-string tuning is currently supported"))
 	}
 	for i, child := range ctx.GetChildren() {
 		child := child.(antlr.ParseTree)
@@ -65,20 +79,22 @@ func (s *tabListener) ExitTuning(ctx *parser.TuningContext) {
 		note := noteMap[fret0[:len(fret0)-1]]
 		octave, err := strconv.ParseUint(fret0[len(fret0)-1:], 10, 8)
 		if err != nil {
-			panic(err)
+			s.errs = append(s.errs, fmt.Errorf("ExitTuning error: %w", err))
 		}
-		if key := note + 12*uint8(octave); 0 > key || key > 127 {
-			panic(errors.New("note out of range"))
-		} else {
-			s.tuning[5-i] = key
+
+		key := note + octaveDistance*uint8(octave)
+		if minKey > key || key > maxKey {
+			s.errs = append(s.errs, fmt.Errorf("tuning out of range on string %v, C(-1) set instead", i+1))
+			key = minKey
 		}
+		s.opts.tuning[len(s.opts.tuning)-1-i] = key
 	}
 }
 
 func (s *tabListener) ExitDurDefault(ctx *parser.DurDefaultContext) {
 	newDur, err := strconv.ParseUint(ctx.GetText(), 10, 16)
 	if err != nil {
-		panic(err)
+		s.errs = append(s.errs, fmt.Errorf("ExitDurDefault error: %w", err))
 	}
 	s.curDuration = uint32(s.enc.TicksPerQuarterNote) * 4 / uint32(newDur)
 }
@@ -90,13 +106,13 @@ func (s *tabListener) ExitDurDescribed(ctx *parser.DurDescribedContext) {
 	durationStr := ctx.GetChild(0).(antlr.ParseTree).GetText()
 	newDur, err := strconv.ParseUint(durationStr, 10, 16)
 	if err != nil {
-		panic(err)
+		s.errs = append(s.errs, fmt.Errorf("ExitDurDescribed error: %w", err))
 	}
 
 	tupleTypeStr := ctx.GetChild(2).(antlr.ParseTree).GetText()
 	tupleType, err := strconv.ParseUint(tupleTypeStr, 10, 16)
 	if err != nil {
-		panic(err)
+		s.errs = append(s.errs, fmt.Errorf("ExitDurDescribed error: %w", err))
 	}
 
 	newDur = uint64(s.enc.TicksPerQuarterNote) * 8 / tupleType / newDur
@@ -105,22 +121,6 @@ func (s *tabListener) ExitDurDescribed(ctx *parser.DurDescribedContext) {
 	}
 
 	s.curDuration = uint32(newDur)
-}
-
-func (s *tabListener) tabToNote(tab string) int {
-	str, err := strconv.ParseInt(tab[:1], 10, 8)
-	if err != nil {
-		panic(err)
-	}
-	fret, err := strconv.ParseInt(tab[1:], 10, 8)
-	if err != nil {
-		panic(err)
-	}
-	if note := s.tuning[str-1] + uint8(fret); 0 > note || note > 127 {
-		panic(errors.New("note out of range"))
-	} else {
-		return int(note)
-	}
 }
 
 // ExitSimpleChord is called when production SimpleChord is exited.
@@ -151,9 +151,28 @@ func (s *tabListener) ExitPlayFret(ctx *parser.PlayFretContext) {
 	tab := ctx.GetText()
 	note := s.tabToNote(tab)
 	s.track.AddAfterDelta(0, midi.NoteOn(0, note, velocity))
-
 	s.track.AddAfterDelta(s.curDuration, midi.NoteOff(0, note))
+}
 
+func (s *tabListener) ExitBend(ctx *parser.BendContext) {
+	note := s.tabToNote(ctx.GetChild(1).(antlr.ParseTree).GetText())
+	bend := ctx.GetChild(3).(antlr.ParseTree).GetText()
+	s.track.AddAfterDelta(0, midi.NoteOn(0, note, velocity))
+
+	pitchBendEvents := int(s.curDuration / 2)
+	var maxPitch int
+	switch bend {
+	case "1":
+		maxPitch = 12288
+	default:
+		maxPitch = 16383
+	}
+	step := (maxPitch - 8192) / int(s.curDuration) * 2
+	for i := range pitchBendEvents {
+		s.track.AddAfterDelta(1, midi.PitchWheelChange(0, 0, 8192+(i+1)*step))
+	}
+	s.track.AddAfterDelta(s.curDuration-s.curDuration/2, midi.NoteOff(0, note))
+	s.track.AddAfterDelta(0, midi.PitchWheelChange(0, 8192, 8192))
 }
 
 func (s *tabListener) ExitPause(ctx *parser.PauseContext) {
@@ -163,4 +182,25 @@ func (s *tabListener) ExitPause(ctx *parser.PauseContext) {
 
 func (s *tabListener) ExitStart(ctx *parser.StartContext) {
 	s.track.AddAfterDelta(s.curDuration, midi.EndOfTrack())
+}
+
+// tabToNote converts tab entry to a note number
+func (s *tabListener) tabToNote(tab string) int {
+	str, err := strconv.ParseInt(tab[:1], 10, 8)
+	if err != nil {
+		s.errs = append(s.errs, fmt.Errorf("couldn't convert tab to note: %w", err))
+		str = 1
+	}
+	fret, err := strconv.ParseInt(tab[1:], 10, 8)
+	if err != nil {
+		s.errs = append(s.errs, fmt.Errorf("couldn't convert tab to note: %w", err))
+		fret = 0
+	}
+
+	note := s.opts.tuning[str-1] + uint8(fret)
+	if minKey > note || note > maxKey {
+		s.errs = append(s.errs, fmt.Errorf("note out of range: %v", tab))
+		note = minKey
+	}
+	return int(note)
 }
