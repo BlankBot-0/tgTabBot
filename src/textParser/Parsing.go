@@ -2,12 +2,12 @@ package textParser
 
 import (
 	"github.com/antlr4-go/antlr/v4"
-	"io"
 	"tgScoreBot/src/textParser/parser"
 )
 
-func TabToMidi(input string, output io.Writer) {
-	// Setup the input
+// TabToMidi writes midi to output given a string input which satisfies the grammar Tab.g4
+func Parse(input string, processors []*TabProcessor) []error {
+	// Set up the input
 	is := antlr.NewInputStream(input)
 
 	// Create the Lexer
@@ -18,10 +18,8 @@ func TabToMidi(input string, output io.Writer) {
 	p := parser.NewTabParser(stream)
 
 	// Finally parse the expression (by walking the tree)
-	listener := newTabListener(output, 480)
+	listener := newTabListener(processors)
 	antlr.ParseTreeWalkerDefault.Walk(listener, p.Start_())
 
-	if err := listener.enc.Write(); err != nil {
-		panic(err)
-	}
+	return listener.errs
 }

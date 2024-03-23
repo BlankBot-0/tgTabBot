@@ -9,52 +9,45 @@ import (
 	"github.com/viert/go-lame"
 	"io"
 	"math"
-	"os"
 	"time"
 )
 
-func MidiToMp3(midiInput io.Reader, sf2Path, mp3FileName string) error {
-	if len(sf2Path) == 0 {
-		return fmt.Errorf("missing sf2 path")
-	}
-	sf2, err := os.Open(sf2Path)
+func MidiToMp3(midiInput io.Reader, soundFont *meltysynth.SoundFont, mp3Output io.Writer) error {
+	pcm, err := MidiToPcm(soundFont, midiInput)
 	if err != nil {
 		return err
 	}
-	soundFont, err := meltysynth.NewSoundFont(sf2)
-	sf2.Close()
-	if err != nil {
+	if err = PcmToMp3(pcm, mp3Output); err != nil {
 		return err
 	}
-
-	pcm := bytes.Buffer{}
-	MidiToPcm(soundFont, midiInput, &pcm)
-	pcmToMp3(&pcm, mp3FileName)
 	return nil
 }
 
-func pcmToMp3(pcmInput io.Reader, mp3FileName string) {
-	mp3File, _ := os.OpenFile(mp3FileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
-	defer mp3File.Close()
-	enc := lame.NewEncoder(mp3File)
-	enc.SetMode(2)
+func PcmToMp3(pcmInput io.Reader, mp3Output io.Writer) error {
+	enc := lame.NewEncoder(mp3Output)
+	if err := enc.SetMode(2); err != nil {
+		return fmt.Errorf("PcmToMp3 error: %w", err)
+	}
 	defer enc.Close()
 	r := bufio.NewReader(pcmInput)
-	r.WriteTo(enc)
+	if _, err := r.WriteTo(enc); err != nil {
+		return fmt.Errorf("PcmToMp3 error: %w", err)
+	}
+	return nil
 }
 
-func MidiToPcm(soundFont *meltysynth.SoundFont, midiInput io.Reader, PcmOutput io.Writer) error {
+func MidiToPcm(soundFont *meltysynth.SoundFont, midiInput io.Reader) (*bytes.Buffer, error) {
 	// Create the synthesizer.
 	settings := meltysynth.NewSynthesizerSettings(44100)
 	synthesizer, err := meltysynth.NewSynthesizer(soundFont, settings)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("MidiToPcm error: %w", err)
 	}
 
 	// Load the MIDI data.
 	midiFile, err := meltysynth.NewMidiFile(midiInput)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("MidiToPcm error: %w", err)
 	}
 
 	// Create the MIDI sequencer.
@@ -68,8 +61,11 @@ func MidiToPcm(soundFont *meltysynth.SoundFont, midiInput io.Reader, PcmOutput i
 
 	// Render the waveform.
 	sequencer.Render(left, right)
-
-	return writePCMInterleavedInt16(left, right, PcmOutput)
+	pcmOutput := new(bytes.Buffer)
+	if err = writePCMInterleavedInt16(left, right, pcmOutput); err != nil {
+		return nil, fmt.Errorf("MidiToPcm error: %w", err)
+	}
+	return pcmOutput, nil
 }
 
 func writePCMInterleavedInt16(left []float32, right []float32, pcm io.Writer) error {
