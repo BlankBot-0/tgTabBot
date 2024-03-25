@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-audio/midi"
 	"io"
+	"slices"
 	"strconv"
 	"tgScoreBot/src/textParser"
 )
@@ -19,7 +20,7 @@ type TabProcessorMidi struct {
 	errs                []error
 }
 
-func NewTabProcessorMidi(outputMidi io.Writer, tpqn uint16) textParser.TabProcessor {
+func NewTabProcessorMidi(outputMidi io.Writer, tpqn uint16) *TabProcessorMidi {
 	enc := midi.NewEncoder(outputMidi, midi.SingleTrack, tpqn)
 	return &TabProcessorMidi{
 		enc:                 enc,
@@ -28,7 +29,7 @@ func NewTabProcessorMidi(outputMidi io.Writer, tpqn uint16) textParser.TabProces
 	}
 }
 
-func (p *TabProcessorMidi) Bpm(bpm string) {
+func (p *TabProcessorMidi) SetBpm(bpm string) {
 	bpmNumeric, err := strconv.ParseFloat(bpm, 64)
 	if err != nil {
 		p.errs = append(p.errs, fmt.Errorf("midi bpm error: %w", err))
@@ -36,7 +37,7 @@ func (p *TabProcessorMidi) Bpm(bpm string) {
 	p.track.Add(0, midi.TempoEvent(bpmNumeric))
 }
 
-func (p *TabProcessorMidi) Tuning(tuning []string) {
+func (p *TabProcessorMidi) SetTuning(tuning []string) {
 	for i, tune := range tuning {
 		note := noteMap[tune[:len(tune)-1]]
 		octave, err := strconv.ParseInt(tune[len(tune)-1:], 10, 8)
@@ -50,12 +51,12 @@ func (p *TabProcessorMidi) Tuning(tuning []string) {
 			p.errs = append(p.errs, fmt.Errorf("tuning out of range on string %v, C(-1) set instead", i+1))
 			key = minKey
 		}
-
-		p.tuning = append([]uint8{key}, p.tuning...)
+		p.tuning = append(p.tuning, key)
 	}
+	slices.Reverse(p.tuning)
 }
 
-func (p *TabProcessorMidi) Duration(duration []string) {
+func (p *TabProcessorMidi) SetDuration(duration []string) {
 	newDur, err := strconv.ParseUint(duration[0], 10, 16)
 	if err != nil {
 		p.errs = append(p.errs, fmt.Errorf("midi duration error: %w", err))
@@ -90,7 +91,7 @@ func (p *TabProcessorMidi) PlayChord(chord []string) {
 	}
 	notesToPlay := min(len(p.tuning), len(chord))
 	notes := make([]int, notesToPlay)
-	for i := 0; i != notesToPlay; i++ {
+	for i := range notesToPlay {
 		note := p.tabToNote(chord[i])
 		notes[i] = note
 		p.track.AddAfterDelta(0, midi.NoteOn(MidiChannelDefault, note, VelocityDefault))
@@ -99,7 +100,7 @@ func (p *TabProcessorMidi) PlayChord(chord []string) {
 	// first NoteOff event must appear after correct time
 	// and following must appear instantaneously
 	p.track.AddAfterDelta(p.curDuration, midi.NoteOff(MidiChannelDefault, notes[0]))
-	for i := 1; i != notesToPlay; i++ {
+	for i := 1; i < notesToPlay; i++ {
 		p.track.AddAfterDelta(0, midi.NoteOff(MidiChannelDefault, notes[i]))
 	}
 }

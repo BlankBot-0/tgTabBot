@@ -6,7 +6,7 @@ import (
 )
 
 // TabToMidi writes midi to output given a string input which satisfies the grammar Tab.g4
-func Parse(input string, processors []*TabProcessor) []error {
+func Parse(input string, processors []TabProcessor) []error {
 	// Set up the input
 	is := antlr.NewInputStream(input)
 

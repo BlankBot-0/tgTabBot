@@ -17,7 +17,7 @@ func MidiToMp3(midiInput io.Reader, soundFont *meltysynth.SoundFont, mp3Output i
 	if err != nil {
 		return err
 	}
-	if err = PcmToMp3(pcm, mp3Output); err != nil {
+	if err = PcmToMp3(&pcm, mp3Output); err != nil {
 		return err
 	}
 	return nil
@@ -36,18 +36,18 @@ func PcmToMp3(pcmInput io.Reader, mp3Output io.Writer) error {
 	return nil
 }
 
-func MidiToPcm(soundFont *meltysynth.SoundFont, midiInput io.Reader) (*bytes.Buffer, error) {
+func MidiToPcm(soundFont *meltysynth.SoundFont, midiInput io.Reader) (bytes.Buffer, error) {
 	// Create the synthesizer.
 	settings := meltysynth.NewSynthesizerSettings(44100)
 	synthesizer, err := meltysynth.NewSynthesizer(soundFont, settings)
 	if err != nil {
-		return nil, fmt.Errorf("MidiToPcm error: %w", err)
+		return bytes.Buffer{}, fmt.Errorf("MidiToPcm error: %w", err)
 	}
 
 	// Load the MIDI data.
 	midiFile, err := meltysynth.NewMidiFile(midiInput)
 	if err != nil {
-		return nil, fmt.Errorf("MidiToPcm error: %w", err)
+		return bytes.Buffer{}, fmt.Errorf("MidiToPcm error: %w", err)
 	}
 
 	// Create the MIDI sequencer.
@@ -61,26 +61,22 @@ func MidiToPcm(soundFont *meltysynth.SoundFont, midiInput io.Reader) (*bytes.Buf
 
 	// Render the waveform.
 	sequencer.Render(left, right)
-	pcmOutput := new(bytes.Buffer)
-	if err = writePCMInterleavedInt16(left, right, pcmOutput); err != nil {
-		return nil, fmt.Errorf("MidiToPcm error: %w", err)
+	pcmOutput, err := writePCMInterleavedInt16(left, right)
+	if err != nil {
+		return bytes.Buffer{}, fmt.Errorf("MidiToPcm error: %w", err)
 	}
 	return pcmOutput, nil
 }
 
-func writePCMInterleavedInt16(left []float32, right []float32, pcm io.Writer) error {
+func writePCMInterleavedInt16(left []float32, right []float32) (bytes.Buffer, error) {
 	length := len(left)
 	var maxS float64
 
 	for i := 0; i < length; i++ {
 		absLeft := math.Abs(float64(left[i]))
 		absRight := math.Abs(float64(right[i]))
-		if maxS < absLeft {
-			maxS = absLeft
-		}
-		if maxS < absRight {
-			maxS = absRight
-		}
+		maxS = max(maxS, absLeft)
+		maxS = max(maxS, absRight)
 	}
 
 	a := 32768 * float32(0.99/maxS)
@@ -92,5 +88,9 @@ func writePCMInterleavedInt16(left []float32, right []float32, pcm io.Writer) er
 		data[2*i+1] = int16(a * right[i])
 	}
 
-	return binary.Write(pcm, binary.LittleEndian, data)
+	pcm := bytes.Buffer{}
+	if err := binary.Write(&pcm, binary.LittleEndian, data); err != nil {
+		return bytes.Buffer{}, err
+	}
+	return pcm, nil
 }
