@@ -1,4 +1,4 @@
-package soundGen
+package tabs
 
 import (
 	"bufio"

@@ -1,4 +1,4 @@
-package midi
+package tabs
 
 import (
 	"fmt"
@@ -6,10 +6,9 @@ import (
 	"io"
 	"slices"
 	"strconv"
-	"tgScoreBot/src/textParser"
 )
 
-var _ textParser.TabProcessor = (*TabProcessorMidi)(nil)
+var _ TabProcessor = (*TabProcessorMidi)(nil)
 
 type TabProcessorMidi struct {
 	enc                 *midi.Encoder
@@ -81,7 +80,7 @@ func (p *TabProcessorMidi) SetDuration(duration []string) {
 }
 
 func (p *TabProcessorMidi) PlayFret(tab string) {
-	// May be not needed
+	// Might be not needed
 	return
 }
 

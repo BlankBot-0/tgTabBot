@@ -1,4 +1,4 @@
-package midi
+package tabs
 
 import (
 	"fmt"

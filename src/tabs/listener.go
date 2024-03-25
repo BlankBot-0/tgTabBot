@@ -1,22 +1,41 @@
-package textParser
+package tabs
 
 import (
 	"fmt"
 	"github.com/antlr4-go/antlr/v4"
 	"strings"
-	"tgScoreBot/src/textParser/parser"
+	"tgScoreBot/src/tabs/parser"
 )
+
+// Parse writes midi to output given a string input which satisfies the grammar Tab.g4
+func Parse(input string, processors []TabProcessor) []error {
+	// Set up the input
+	is := antlr.NewInputStream(input)
+
+	// Create the Lexer
+	lexer := parser.NewTabLexer(is)
+	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+
+	// Create the Parser
+	p := parser.NewTabParser(stream)
+
+	// Finally parse the expression (by walking the tree)
+	listener := newTabListener(processors)
+	antlr.ParseTreeWalkerDefault.Walk(listener, p.Start_())
+
+	return listener.errs
+}
 
 var _ parser.TabListener = (*tabListener)(nil)
 
 type TabProcessor interface {
-	// Bpm sets bpm
+	// SetBpm sets bpm
 	SetBpm(bpm string)
 
-	// Tuning sets guitar tuning
+	// SetTuning sets guitar tuning
 	SetTuning(tuning []string)
 
-	// Duration sets current note duration
+	// SetDuration sets current note duration
 	SetDuration(duration []string)
 
 	// PlayFret processes tab entry
