@@ -27,11 +27,23 @@ func (s *BaseTabListener) EnterStart(ctx *StartContext) {}
 // ExitStart is called when production start is exited.
 func (s *BaseTabListener) ExitStart(ctx *StartContext) {}
 
-// EnterDurationGroups is called when production durationGroups is entered.
-func (s *BaseTabListener) EnterDurationGroups(ctx *DurationGroupsContext) {}
+// EnterBpm is called when production bpm is entered.
+func (s *BaseTabListener) EnterBpm(ctx *BpmContext) {}
 
-// ExitDurationGroups is called when production durationGroups is exited.
-func (s *BaseTabListener) ExitDurationGroups(ctx *DurationGroupsContext) {}
+// ExitBpm is called when production bpm is exited.
+func (s *BaseTabListener) ExitBpm(ctx *BpmContext) {}
+
+// EnterTuning is called when production tuning is entered.
+func (s *BaseTabListener) EnterTuning(ctx *TuningContext) {}
+
+// ExitTuning is called when production tuning is exited.
+func (s *BaseTabListener) ExitTuning(ctx *TuningContext) {}
+
+// EnterTuningImpl is called when production tuningImpl is entered.
+func (s *BaseTabListener) EnterTuningImpl(ctx *TuningImplContext) {}
+
+// ExitTuningImpl is called when production tuningImpl is exited.
+func (s *BaseTabListener) ExitTuningImpl(ctx *TuningImplContext) {}
 
 // EnterDurationGroup is called when production durationGroup is entered.
 func (s *BaseTabListener) EnterDurationGroup(ctx *DurationGroupContext) {}
@@ -51,23 +63,17 @@ func (s *BaseTabListener) EnterDurDefault(ctx *DurDefaultContext) {}
 // ExitDurDefault is called when production DurDefault is exited.
 func (s *BaseTabListener) ExitDurDefault(ctx *DurDefaultContext) {}
 
-// EnterNoteGroup is called when production noteGroup is entered.
-func (s *BaseTabListener) EnterNoteGroup(ctx *NoteGroupContext) {}
+// EnterPlayFret is called when production PlayFret is entered.
+func (s *BaseTabListener) EnterPlayFret(ctx *PlayFretContext) {}
 
-// ExitNoteGroup is called when production noteGroup is exited.
-func (s *BaseTabListener) ExitNoteGroup(ctx *NoteGroupContext) {}
+// ExitPlayFret is called when production PlayFret is exited.
+func (s *BaseTabListener) ExitPlayFret(ctx *PlayFretContext) {}
 
 // EnterSimpleChord is called when production SimpleChord is entered.
 func (s *BaseTabListener) EnterSimpleChord(ctx *SimpleChordContext) {}
 
 // ExitSimpleChord is called when production SimpleChord is exited.
 func (s *BaseTabListener) ExitSimpleChord(ctx *SimpleChordContext) {}
-
-// EnterPlayFret is called when production PlayFret is entered.
-func (s *BaseTabListener) EnterPlayFret(ctx *PlayFretContext) {}
-
-// ExitPlayFret is called when production PlayFret is exited.
-func (s *BaseTabListener) ExitPlayFret(ctx *PlayFretContext) {}
 
 // EnterPause is called when production Pause is entered.
 func (s *BaseTabListener) EnterPause(ctx *PauseContext) {}

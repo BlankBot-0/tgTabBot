@@ -1,38 +1,28 @@
 package main
 
 import (
-	"log"
+	"github.com/sinshu/go-meltysynth/meltysynth"
 	"os"
-
-	"github.com/go-audio/midi"
 )
 
 func main() {
-	f, err := os.Create("midi.mid")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer func() {
-		f.Close()
-	}()
-	e := midi.NewEncoder(f, midi.SingleTrack, 96)
-	tr := e.NewTrack()
-
-	// 1 beat with 1 note for nothing
-	tr.Add(1, midi.NoteOff(0, 60))
-
-	vel := 90
-	//C3 to B3
-	var j float64
-	for i := 60; i < 72; i++ {
-		tr.Add(j, midi.NoteOn(0, i, vel))
-		tr.Add(1, midi.NoteOff(0, i))
-		j = 1
-	}
-	tr.Add(1, midi.EndOfTrack())
-
-	if err := e.Write(); err != nil {
-		log.Fatal(err)
-	}
-
+	// get mp3 files from text files
+	example1, _ := os.ReadFile("./example/textExample1")
+	example2, _ := os.ReadFile("./example/textExampleBend")
+	example3, _ := os.ReadFile("./example/textExampleChord")
+	sfFile, _ := os.Open("TimGM6mb.sf2")
+	defer sfFile.Close()
+	sf, _ := meltysynth.NewSoundFont(sfFile)
+	mp3File1, _ := os.OpenFile("mp3Example1.mp3", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	defer mp3File1.Close()
+	mp3File2, _ := os.OpenFile("mp3ExampleBend.mp3", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	defer mp3File2.Close()
+	mp3File3, _ := os.OpenFile("mp3ExampleChord.mp3", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	defer mp3File3.Close()
+	buf1, _ := TextToMp3(string(example1), sf)
+	buf2, _ := TextToMp3(string(example2), sf)
+	buf3, _ := TextToMp3(string(example3), sf)
+	mp3File1.Write(buf1.Bytes())
+	mp3File2.Write(buf2.Bytes())
+	mp3File3.Write(buf3.Bytes())
 }
