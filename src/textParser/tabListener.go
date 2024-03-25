@@ -94,7 +94,7 @@ func (s *tabListener) ExitSimpleChord(ctx *parser.SimpleChordContext) {
 	tabs := make([]string, ctx.GetChildCount()-2)
 	for i := 1; i != ctx.GetChildCount()-1; i++ {
 		ch := ctx.GetChild(i)
-		tabs[i] = ch.(antlr.ParseTree).GetText()
+		tabs[i-1] = ch.(antlr.ParseTree).GetText()
 	}
 	for _, p := range s.processors {
 		p.PlayChord(tabs)
