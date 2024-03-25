@@ -1,23 +1,42 @@
-package textParser
+package tabs
 
 import (
 	"fmt"
 	"github.com/antlr4-go/antlr/v4"
 	"strings"
-	"tgScoreBot/src/textParser/parser"
+	"tgScoreBot/src/tabs/parser"
 )
+
+// Parse writes midi to output given a string input which satisfies the grammar Tab.g4
+func Parse(input string, processors []TabProcessor) []error {
+	// Set up the input
+	is := antlr.NewInputStream(input)
+
+	// Create the Lexer
+	lexer := parser.NewTabLexer(is)
+	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+
+	// Create the Parser
+	p := parser.NewTabParser(stream)
+
+	// Finally parse the expression (by walking the tree)
+	listener := newTabListener(processors)
+	antlr.ParseTreeWalkerDefault.Walk(listener, p.Start_())
+
+	return listener.errs
+}
 
 var _ parser.TabListener = (*tabListener)(nil)
 
 type TabProcessor interface {
-	// Bpm sets bpm
-	Bpm(bpm string)
+	// SetBpm sets bpm
+	SetBpm(bpm string)
 
-	// Tuning sets guitar tuning
-	Tuning(tuning []string)
+	// SetTuning sets guitar tuning
+	SetTuning(tuning []string)
 
-	// Duration sets current note duration
-	Duration(duration []string)
+	// SetDuration sets current note duration
+	SetDuration(duration []string)
 
 	// PlayFret processes tab entry
 	PlayFret(tab string)
@@ -40,12 +59,12 @@ type TabProcessor interface {
 
 type tabListener struct {
 	*parser.BaseTabListener
-	processors []*TabProcessor
+	processors []TabProcessor
 	errs       []error
 }
 
 // newTabListener returns a new tabListener given an output and midi clock resolution
-func newTabListener(processors []*TabProcessor) *tabListener {
+func newTabListener(processors []TabProcessor) *tabListener {
 	return &tabListener{
 		processors: processors,
 	}
@@ -59,51 +78,45 @@ func (s *tabListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol a
 func (s *tabListener) ExitBpm(ctx *parser.BpmContext) {
 	bpmStr := ctx.GetChild(1).(antlr.ParseTree).GetText()
 	for _, p := range s.processors {
-		(*p).Bpm(bpmStr)
+		p.SetBpm(bpmStr)
 	}
 }
 
 func (s *tabListener) ExitTuning(ctx *parser.TuningContext) {
-	if n := ctx.GetChildCount(); n != 6 {
-		s.errs = append(s.errs, fmt.Errorf("only 6-string tuning is currently supported"))
-	}
 	tuning := make([]string, ctx.GetChildCount())
 	for i, child := range ctx.GetChildren() {
 		tuning[i] = strings.ToUpper(child.(antlr.ParseTree).GetText())
 	}
 	for _, p := range s.processors {
-		(*p).Tuning(tuning)
+		p.SetTuning(tuning)
 	}
 }
 
 func (s *tabListener) ExitDurDefault(ctx *parser.DurDefaultContext) {
 	for _, p := range s.processors {
-		(*p).Duration([]string{ctx.GetText()})
+		p.SetDuration([]string{ctx.GetText()})
 	}
 }
 
 func (s *tabListener) ExitDurDescribed(ctx *parser.DurDescribedContext) {
-	if n := ctx.GetChildCount(); n != 3 {
-		s.errs = append(s.errs, fmt.Errorf("incorrect duration description"))
-	}
 	durAtoms := make([]string, 3)
 	for i, ch := range ctx.GetChildren() {
 		durAtoms[i] = ch.(antlr.ParseTree).GetText()
 	}
 	for _, p := range s.processors {
-		(*p).Duration(durAtoms)
+		p.SetDuration(durAtoms)
 	}
 }
 
 // ExitSimpleChord is called when production SimpleChord is exited.
 func (s *tabListener) ExitSimpleChord(ctx *parser.SimpleChordContext) {
 	tabs := make([]string, ctx.GetChildCount()-2)
-	for i := 1; i != ctx.GetChildCount()-1; i++ {
-		ch := ctx.GetChild(i)
-		tabs[i] = ch.(antlr.ParseTree).GetText()
+	strTabs := ctx.GetChildren()
+	for i, t := range strTabs[1 : ctx.GetChildCount()-1] {
+		tabs[i] = t.(antlr.ParseTree).GetText()
 	}
 	for _, p := range s.processors {
-		(*p).PlayChord(tabs)
+		p.PlayChord(tabs)
 	}
 }
 
@@ -111,7 +124,7 @@ func (s *tabListener) ExitPlayFret(ctx *parser.PlayFretContext) {
 	tab := ctx.GetText()
 	for _, p := range s.processors {
 		// PlayChord is used intentionally as PlayFret might be not needed
-		(*p).PlayChord([]string{tab})
+		p.PlayChord([]string{tab})
 	}
 }
 
@@ -119,18 +132,18 @@ func (s *tabListener) ExitBend(ctx *parser.BendContext) {
 	tab := ctx.GetChild(1).(antlr.ParseTree).GetText()
 	bendVal := ctx.GetChild(3).(antlr.ParseTree).GetText()
 	for _, p := range s.processors {
-		(*p).ModelBend(tab, bendVal)
+		p.ModelBend(tab, bendVal)
 	}
 }
 
 func (s *tabListener) ExitPause(ctx *parser.PauseContext) {
 	for _, p := range s.processors {
-		(*p).Pause()
+		p.Pause()
 	}
 }
 
 func (s *tabListener) ExitStart(ctx *parser.StartContext) {
 	for _, p := range s.processors {
-		(*p).Finish()
+		p.Finish()
 	}
 }

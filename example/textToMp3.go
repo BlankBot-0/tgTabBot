@@ -2,57 +2,30 @@ package main
 
 import (
 	"bytes"
-	"fmt"
+	"errors"
 	"github.com/sinshu/go-meltysynth/meltysynth"
-	"os"
-	"tgScoreBot/src/TabProcessor/midi"
-	"tgScoreBot/src/soundGen"
-	"tgScoreBot/src/textParser"
+	"tgScoreBot/src/tabs"
 )
 
-func TextToMp3(input, mp3Path string) error {
-	// Open necessary files
-	mp3File, err := os.OpenFile(mp3Path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
-	if err != nil {
-		return err
-	}
-	defer mp3File.Close()
-
-	sfFile, err := os.Open("TimGM6mb.sf2")
-	if err != nil {
-		return err
-	}
-	defer sfFile.Close()
-
-	sf, err := meltysynth.NewSoundFont(sfFile)
-	if err != nil {
-		return err
-	}
-
+func TextToMp3(input string, sf *meltysynth.SoundFont) (bytes.Buffer, error) {
 	// Set up processors - one midi processor in this case
 	midiBuf := new(bytes.Buffer)
-	midiProc := midi.NewTabProcessorMidi(midiBuf, 480)
+	midiProc := tabs.NewTabProcessorMidi(midiBuf, 480)
 
 	// Parse text
-	parseErrs := textParser.Parse(input, []*textParser.TabProcessor{&midiProc})
+	parseErrs := tabs.Parse(input, []tabs.TabProcessor{midiProc})
+	if errs := errors.Join(parseErrs...); errs != nil {
+		return bytes.Buffer{}, errs
+	}
 
-	// Extract processors' errors
+	// Extract processor's errors
 	midiErrs := midiProc.Errors()
 
 	// Write mp3 from midi
-	if err = soundGen.MidiToMp3(midiBuf, sf, mp3File); err != nil {
-		return err
+	mp3Output := bytes.Buffer{}
+	if err := tabs.MidiToMp3(midiBuf, sf, &mp3Output); err != nil {
+		return bytes.Buffer{}, err
 	}
 
-	// Print errors
-	fmt.Println("Parse errors:")
-	for _, e := range parseErrs {
-		fmt.Println(e)
-	}
-	fmt.Println("\nMidi errors:")
-	for _, e := range midiErrs {
-		fmt.Println(e)
-	}
-
-	return nil
+	return mp3Output, errors.Join(midiErrs...)
 }
