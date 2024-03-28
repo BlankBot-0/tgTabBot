@@ -1,4 +1,11 @@
-package events
+package telegram
+
+const (
+	HelpCmd         = "/help"
+	StartCmd        = "/start"
+	ExampleCmd      = "/example"
+	InstructionsCmd = "/instructions"
+)
 
 const msgHelp = `I can convert your tabs to music if they follow these simple rules:
 
@@ -12,10 +19,12 @@ Don't feel intimidated - it's easier to write than to read!
 Currently I support dotted and/or tuplet durations, simple polyphony and bends.
 `
 
+const msgError = "There is an error somewhere in the input 🤔. Use /help for instructions"
+
 const msgHello = "Hi there! 👾\n\n" + msgHelp
 
 const (
-	msgUnknownCommand = "Unknown command 🤔"
+	msgUnknownCommand = "Unknown command 🤔\nUse /help for instructions"
 	msgExample        = `Send this to me to see how I work:
 BPM 80 E2 A2 D3 G3 B3 E4
 

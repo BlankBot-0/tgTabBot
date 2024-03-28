@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"github.com/sinshu/go-meltysynth/meltysynth"
 	"github.com/viert/go-lame"
@@ -11,6 +12,29 @@ import (
 	"math"
 	"time"
 )
+
+func TextToMp3(input string, sf *meltysynth.SoundFont) (bytes.Buffer, error) {
+	// Set up processors - one midi processor in this case
+	midiBuf := new(bytes.Buffer)
+	midiProc := NewTabProcessorMidi(midiBuf, 480)
+
+	// Parse text
+	parseErrs := Parse(input, []TabProcessor{midiProc})
+	if errs := errors.Join(parseErrs...); errs != nil {
+		return bytes.Buffer{}, errs
+	}
+
+	// Extract processor's errors
+	midiErrs := midiProc.Errors()
+
+	// Write mp3 from midi
+	mp3Output := bytes.Buffer{}
+	if err := MidiToMp3(midiBuf, sf, &mp3Output); err != nil {
+		return bytes.Buffer{}, err
+	}
+
+	return mp3Output, errors.Join(midiErrs...)
+}
 
 func MidiToMp3(midiInput io.Reader, soundFont *meltysynth.SoundFont, mp3Output io.Writer) error {
 	pcm, err := MidiToPcm(soundFont, midiInput)
