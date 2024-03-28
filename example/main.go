@@ -1,8 +1,9 @@
-package main
+package example
 
 import (
 	"github.com/sinshu/go-meltysynth/meltysynth"
 	"os"
+	"tgScoreBot/src/tabs"
 )
 
 func main() {
@@ -19,9 +20,9 @@ func main() {
 	defer mp3File2.Close()
 	mp3File3, _ := os.OpenFile("mp3ExampleChord.mp3", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
 	defer mp3File3.Close()
-	buf1, _ := TextToMp3(string(example1), sf)
-	buf2, _ := TextToMp3(string(example2), sf)
-	buf3, _ := TextToMp3(string(example3), sf)
+	buf1, _ := tabs.TextToMp3(string(example1), sf)
+	buf2, _ := tabs.TextToMp3(string(example2), sf)
+	buf3, _ := tabs.TextToMp3(string(example3), sf)
 	mp3File1.Write(buf1.Bytes())
 	mp3File2.Write(buf2.Bytes())
 	mp3File3.Write(buf3.Bytes())
